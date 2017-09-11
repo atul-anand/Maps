@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.zemoso.atul.maps.R;
 import com.zemoso.atul.maps.fragments.FlightPlan;
 import com.zemoso.atul.maps.fragments.MyProfile;
+import com.zemoso.atul.maps.fragments.Notifications;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -116,6 +117,8 @@ public class MainActivity extends AppCompatActivity
                         , Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_notifications:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragments,
+                        Notifications.newInstance()).addToBackStack("notifications").commit();
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.nav_notifications)
                         , Toast.LENGTH_SHORT).show();
                 break;

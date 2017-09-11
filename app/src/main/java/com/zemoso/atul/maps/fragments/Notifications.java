@@ -119,11 +119,6 @@ public class Notifications extends Fragment {
             authorization = "Bearer " + access_token;
         }
 
-        @Override
-        public String toString() {
-            return "?authorization=" + authorization;
-        }
-
         void getNotifications() {
             String extension = getResources().getString(R.string.url_notifications);
             String url = mHostname + extension;
@@ -131,12 +126,14 @@ public class Notifications extends Fragment {
             Response.Listener<JSONArray> listener = new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
+                    Log.d(TAG, String.valueOf(response));
                     notifications.clear();
                     showEmptyScreen(true);
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject jsonObject = response.optJSONObject(i);
                         Notification notification = new Notification(jsonObject);
                         notifications.add(notification);
+                        Log.d(TAG, String.valueOf(notification));
                         showEmptyScreen(false);
                     }
                     mNotificationAdapter.notifyDataSetChanged();

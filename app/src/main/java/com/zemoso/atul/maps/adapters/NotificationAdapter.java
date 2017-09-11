@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.zemoso.atul.maps.R;
 import com.zemoso.atul.maps.javabeans.Notification;
@@ -38,7 +39,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
         int pos = holder.getAdapterPosition();
         Notification notification = notifications.get(pos);
-
+        String heading = notification.getFlight_plan_name();
+        String subHeading = notification.getRoute_owner_name();
+        String type = "Type: " + notification.getFlight_plan_type();
+        holder.heading.setText(heading);
+        holder.created_by.setText(subHeading);
+        holder.type.setText(type);
     }
 
     @Override
@@ -47,8 +53,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
+        private TextView heading;
+        private TextView created_by;
+        private TextView type;
         RecyclerViewHolder(View itemView) {
             super(itemView);
+            heading = itemView.findViewById(R.id.notification_card_heading);
+            created_by = itemView.findViewById(R.id.notification_card_created_by);
+            type = itemView.findViewById(R.id.notification_card_type);
         }
     }
 }

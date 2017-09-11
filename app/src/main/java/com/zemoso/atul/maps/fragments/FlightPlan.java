@@ -126,11 +126,6 @@ public class FlightPlan extends Fragment {
             authorization = "Bearer " + access_token;
         }
 
-        @Override
-        public String toString() {
-            return "?authorization=" + authorization;
-        }
-
         void getFlightPlans() {
             String extension = getResources().getString(R.string.url_flight_plans);
             String url = mHostname + extension;

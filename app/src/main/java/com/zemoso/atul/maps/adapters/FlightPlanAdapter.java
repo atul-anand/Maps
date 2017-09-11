@@ -51,7 +51,7 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
 
         holder.heading.setText(name);
         holder.created_by.setText(created_by);
-        holder.type.setText(type);
+        holder.type.setText("Type: " + type);
         holder.updated_time.setText(updated_time);
         holder.flight_type.setText(type);
 

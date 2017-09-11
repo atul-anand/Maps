@@ -415,7 +415,9 @@ public class LoginActivity extends AppCompatActivity {
                     realm.close();
                     Log.d(TAG, String.valueOf(registryUser));
                     showProgress(false);
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }
             };
             Response.ErrorListener userProfileErrorListener = new Response.ErrorListener() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/notification_empty_layout"
+    android:id="@+id/plan_empty_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
@@ -8,7 +8,7 @@
     android:paddingBottom="?attr/actionBarSize">
 
     <ImageView
-        android:id="@+id/notification_icon"
+        android:id="@+id/plan_icon"
         android:layout_width="115dp"
         android:layout_height="115dp"
         android:layout_gravity="center"
@@ -16,7 +16,7 @@
         android:src="@drawable/icon_drone" />
 
     <TextView
-        android:id="@+id/notification_heading"
+        android:id="@+id/plan_heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -24,7 +24,7 @@
         android:textSize="@dimen/material_text_title" />
 
     <TextView
-        android:id="@+id/notification_subheading"
+        android:id="@+id/plan_subheading"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -34,7 +34,7 @@
         android:textSize="@dimen/material_text_body1" />
 
     <TextView
-        android:id="@+id/notification_action"
+        android:id="@+id/plan_action"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
