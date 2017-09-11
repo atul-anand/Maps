@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/plan_empty_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingBottom="?attr/actionBarSize">
+
+    <ImageView
+        android:id="@+id/plan_icon"
+        android:layout_width="115dp"
+        android:layout_height="115dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/nav_flight_plan"
+        android:src="@drawable/icon_drone" />
+
+    <TextView
+        android:id="@+id/plan_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/plan_none_heading"
+        android:textSize="@dimen/material_text_title" />
+
+    <TextView
+        android:id="@+id/plan_subheading"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:text="@string/plan_none_subheading"
+        android:textAlignment="center"
+        android:textSize="@dimen/material_text_body1" />
+
+    <TextView
+        android:id="@+id/plan_action"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:text="@string/plan_none_action"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/material_text_edit" />
+</LinearLayout>

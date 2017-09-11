@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/icon_my_account"
+        android:title="@string/nav_profile" />
+    <item
+        android:id="@+id/nav_notifications"
+        android:icon="@drawable/icon_notification"
+        android:title="@string/nav_notifications" />
+    <item
+        android:id="@+id/nav_live_view"
+        android:icon="@drawable/icon_live_view"
+        android:title="@string/nav_live_view" />
+    <item
+        android:id="@+id/nav_flight_plan"
+        android:icon="@drawable/icon_drone"
+        android:title="@string/nav_flight_plan" />
+    <item
+        android:id="@+id/nav_flight_review"
+        android:icon="@drawable/icon_flight_review_active"
+        android:title="@string/nav_flight_review" />
+    <item
+        android:id="@+id/nav_equipment"
+        android:icon="@drawable/icon_equipment"
+        android:title="@string/nav_equipment" />
+</menu>
