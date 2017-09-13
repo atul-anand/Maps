@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onBackPressed");
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
             mDrawerLayout.closeDrawer(GravityCompat.START);
-//        else
-//            super.onBackPressed();
+        else
+            super.onBackPressed();
     }
 }

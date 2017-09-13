@@ -41,6 +41,7 @@ public class FlightPlan extends Fragment {
     private static final String TAG = FlightPlan.class.getSimpleName();
 
     private SharedPreferences preferences;
+    private String access_token;
 
     private LinearLayout mEmptyScreen;
 
@@ -75,8 +76,9 @@ public class FlightPlan extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        access_token = preferences.getString("access_token", "");
         mHostname = preferences.getString("Hostname", "");
-
+        Log.d(TAG, access_token);
 
         flightPlanResponses = new ArrayList<>();
 
@@ -86,6 +88,7 @@ public class FlightPlan extends Fragment {
 
         mEmptyScreen = view.findViewById(R.id.plan_empty_layout);
         showEmptyScreen(true);
+
 
 
     }
@@ -126,6 +129,11 @@ public class FlightPlan extends Fragment {
             authorization = "Bearer " + access_token;
         }
 
+        @Override
+        public String toString() {
+            return "?authorization=" + authorization;
+        }
+
         void getFlightPlans() {
             String extension = getResources().getString(R.string.url_flight_plans);
             String url = mHostname + extension;
@@ -138,9 +146,10 @@ public class FlightPlan extends Fragment {
                     showEmptyScreen(true);
                     for (int i = 0; i < jsonArray.length(); i++) {
                         flightPlanResponses.add(new FlightPlanResponse(jsonArray.optJSONObject(i)));
-                        Log.d(TAG, String.valueOf(flightPlanResponses.get(i)));
-                        showEmptyScreen(false);
+                        Log.d(TAG, String.valueOf(flightPlanResponses));
                     }
+                    if (flightPlanResponses.size() > 0)
+                        showEmptyScreen(false);
                     mFlightPlanAdapter.notifyDataSetChanged();
                 }
             };
