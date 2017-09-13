@@ -1,5 +1,8 @@
 package com.zemoso.atul.maps.javabeans;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -8,16 +11,20 @@ import org.json.JSONObject;
 
 public class GeoCircle {
     private String type;
-    private Point2D coordinates;
+    private LatLng coordinates;
     private String radius;
 
     public GeoCircle(JSONObject jsonObject) {
         this.type = jsonObject.optString("type");
-        this.coordinates = new Point2D(jsonObject.optJSONArray("coordinates"));
+        JSONArray coords = jsonObject.optJSONArray("coordinates");
+        Double lat = coords.optDouble(0);
+        Double lon = coords.optDouble(1);
+        this.coordinates = new LatLng(lat, lon);
         this.radius = jsonObject.optString("radius");
+
     }
 
-    public GeoCircle(String type, Point2D coordinates, String radius) {
+    public GeoCircle(String type, LatLng coordinates, String radius) {
         this.type = type;
         this.coordinates = coordinates;
         this.radius = radius;
@@ -35,11 +42,11 @@ public class GeoCircle {
         this.type = type;
     }
 
-    public Point2D getCoordinates() {
+    public LatLng getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(Point2D coordinates) {
+    public void setCoordinates(LatLng coordinates) {
         this.coordinates = coordinates;
     }
 

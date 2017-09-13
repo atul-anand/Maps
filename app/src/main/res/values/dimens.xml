@@ -17,4 +17,7 @@
     <dimen name="material_text_display2">45sp</dimen>
     <dimen name="material_text_display3">56sp</dimen>
     <dimen name="material_text_display4">112sp</dimen>
+
+    <dimen name="map_polyline_fill">1dp</dimen>
+    <dimen name="map_polyline_stroke">6dp</dimen>
 </resources>

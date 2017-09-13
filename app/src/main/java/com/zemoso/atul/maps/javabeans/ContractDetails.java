@@ -1,6 +1,12 @@
 package com.zemoso.atul.maps.javabeans;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by zemoso on 11/9/17.
@@ -8,25 +14,38 @@ import org.json.JSONObject;
 
 public class ContractDetails {
     private JSONObject props;
-    private GeoPoint pilot_location;
+    private LatLng pilot_location;
     private String description;
     private String contract_state;
-    private ContractStateHistory contract_state_history;
+    private List<ContractStateHistory> contract_state_history;
     private String decision_time;
     private Contact primary_contact;
     private Contact secondary_contact;
-    private OperationalVolume operation_volumes_info;
+    private List<OperationalVolume> operation_volumes_info;
 
     public ContractDetails(JSONObject jsonObject) {
         this.props = jsonObject.optJSONObject("props");
-        this.pilot_location = new GeoPoint(jsonObject.optJSONObject("pilot_location"));
+        JSONObject coords = jsonObject.optJSONObject("pilot_location");
+        Double lat = coords.optDouble("lat");
+        Double lon = coords.optDouble("lon");
+        this.pilot_location = new LatLng(lat, lon);
         this.description = jsonObject.optString("description");
         this.contract_state = jsonObject.optString("contract_state");
-        this.contract_state_history = new ContractStateHistory(jsonObject.optJSONObject("contract_state_history"));
+        contract_state_history = new ArrayList<>();
+        JSONArray contractStateHistories = jsonObject.optJSONArray("contract_state_history");
+        for (int i = 0; i < contractStateHistories.length(); i++) {
+            ContractStateHistory contractStateHistory = new ContractStateHistory(contractStateHistories.optJSONObject(i));
+            contract_state_history.add(contractStateHistory);
+        }
         this.decision_time = jsonObject.optString("decision_time");
         this.primary_contact = new Contact(jsonObject.optJSONObject("primary_contact"));
         this.secondary_contact = new Contact(jsonObject.optJSONObject("secondary_contact"));
-        this.operation_volumes_info = new OperationalVolume(jsonObject.optJSONObject("operation_volumes_info"));
+        operation_volumes_info = new ArrayList<>();
+        JSONArray volumes = jsonObject.optJSONArray("operation_volumes_info");
+        for (int i = 0; i < volumes.length(); i++) {
+            OperationalVolume operationalVolume = new OperationalVolume(volumes.optJSONObject(i));
+            operation_volumes_info.add(operationalVolume);
+        }
     }
 
     public JSONObject getProps() {
@@ -37,11 +56,11 @@ public class ContractDetails {
         this.props = props;
     }
 
-    public GeoPoint getPilot_location() {
+    public LatLng getPilot_location() {
         return pilot_location;
     }
 
-    public void setPilot_location(GeoPoint pilot_location) {
+    public void setPilot_location(LatLng pilot_location) {
         this.pilot_location = pilot_location;
     }
 
@@ -61,11 +80,11 @@ public class ContractDetails {
         this.contract_state = contract_state;
     }
 
-    public ContractStateHistory getContract_state_history() {
+    public List<ContractStateHistory> getContract_state_history() {
         return contract_state_history;
     }
 
-    public void setContract_state_history(ContractStateHistory contract_state_history) {
+    public void setContract_state_history(List<ContractStateHistory> contract_state_history) {
         this.contract_state_history = contract_state_history;
     }
 
@@ -93,11 +112,11 @@ public class ContractDetails {
         this.secondary_contact = secondary_contact;
     }
 
-    public OperationalVolume getOperation_volumes_info() {
+    public List<OperationalVolume> getOperation_volumes_info() {
         return operation_volumes_info;
     }
 
-    public void setOperation_volumes_info(OperationalVolume operation_volumes_info) {
+    public void setOperation_volumes_info(List<OperationalVolume> operation_volumes_info) {
         this.operation_volumes_info = operation_volumes_info;
     }
 

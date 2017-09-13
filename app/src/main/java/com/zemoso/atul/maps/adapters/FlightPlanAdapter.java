@@ -1,6 +1,8 @@
 package com.zemoso.atul.maps.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,7 +14,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.zemoso.atul.maps.R;
+import com.zemoso.atul.maps.activities.MapsActivity;
 import com.zemoso.atul.maps.javabeans.FlightPlanResponse;
+import com.zemoso.atul.maps.utils.DateTimeUtils;
 
 import java.util.List;
 
@@ -42,18 +46,19 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
     @Override
     public void onBindViewHolder(final RecyclerViewHolder holder, int position) {
         int pos = holder.getAdapterPosition();
-        FlightPlanResponse flightPlanResponse = flightPlanResponses.get(pos);
+        final FlightPlanResponse flightPlanResponse = flightPlanResponses.get(pos);
         String name = flightPlanResponse.getName();
         String created_by = flightPlanResponse.getCreated_by();
-        String type = flightPlanResponse.getFlight_plan_details().getFlight_plan_type();
-        String updated_time = "Last updated: " + context.getResources().getString(R.string.plan_card_time_default);
+        String type = "Type: " + flightPlanResponse.getFlight_plan_details().getFlight_plan_type();
+        String updated_time = "Created: " + DateTimeUtils.getTimeFromNow(flightPlanResponse.getCreated_at());
+        String status = flightPlanResponse.getStatus();
         Log.d(TAG, (flightPlanResponse.getCreated_at()));
 
         holder.heading.setText(name);
-        holder.created_by.setText(created_by);
-        holder.type.setText("Type: " + type);
+//        holder.created_by.setText(created_by);
+        holder.type.setText(type);
         holder.updated_time.setText(updated_time);
-        holder.flight_type.setText(type);
+        holder.status.setText(status);
 
         holder.card.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -62,9 +67,9 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
                 int colorWhite = context.getResources().getColor(R.color.white);
                 holder.card.setCardBackgroundColor(colorPrimary);
                 holder.fly_now.setVisibility(View.VISIBLE);
-                holder.flight_type.setVisibility(View.GONE);
+                holder.status.setVisibility(View.GONE);
                 holder.heading.setTextColor(colorWhite);
-                holder.created_by.setTextColor(colorWhite);
+//                holder.created_by.setTextColor(colorWhite);
                 holder.type.setTextColor(colorWhite);
                 holder.updated_time.setTextColor(colorWhite);
                 holder.isLongPressed = true;
@@ -81,14 +86,21 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
                     int colorWhite = context.getResources().getColor(R.color.white);
                     holder.card.setCardBackgroundColor(colorWhite);
                     holder.fly_now.setVisibility(View.GONE);
-                    holder.flight_type.setVisibility(View.VISIBLE);
+                    holder.status.setVisibility(View.VISIBLE);
                     holder.heading.setTextColor(colorAccent);
-                    holder.created_by.setTextColor(colorAccent);
+//                    holder.created_by.setTextColor(colorAccent);
                     holder.type.setTextColor(colorAccent);
                     holder.updated_time.setTextColor(colorAccent);
                     holder.isLongPressed = false;
                 } else {
 //                    TODO: Start Detail Activity
+                    Intent intent = new Intent(context, MapsActivity.class);
+                    Bundle args = new Bundle();
+                    args.putString("flight_plan_id", flightPlanResponse.getId());
+                    args.putString("flight_title", flightPlanResponse.getName());
+                    args.putString("contract_id", flightPlanResponse.getContract_id());
+                    intent.putExtras(args);
+                    context.startActivity(intent);
                 }
             }
         });
@@ -101,10 +113,10 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
         private TextView heading;
-        private TextView created_by;
+        //        private TextView created_by;
         private TextView type;
         private TextView updated_time;
-        private TextView flight_type;
+        private TextView status;
         private CardView card;
         private ProgressBar progressBar;
         private Button fly_now;
@@ -114,10 +126,10 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
             super(itemView);
 
             heading = itemView.findViewById(R.id.plan_card_heading);
-            created_by = itemView.findViewById(R.id.plan_card_created_by);
+//            created_by = itemView.findViewById(R.id.plan_card_created_by);
             type = itemView.findViewById(R.id.plan_card_type);
             updated_time = itemView.findViewById(R.id.plan_card_updated_time);
-            flight_type = itemView.findViewById(R.id.plan_card_flight_type);
+            status = itemView.findViewById(R.id.plan_card_status);
             card = itemView.findViewById(R.id.plan_card);
             progressBar = itemView.findViewById(R.id.plan_card_progress);
             fly_now = itemView.findViewById(R.id.plan_card_fly_now_button);

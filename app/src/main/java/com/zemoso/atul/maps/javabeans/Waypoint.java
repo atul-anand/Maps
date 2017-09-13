@@ -1,5 +1,7 @@
 package com.zemoso.atul.maps.javabeans;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONObject;
 
 /**
@@ -9,7 +11,7 @@ import org.json.JSONObject;
 public class Waypoint {
     private Integer min_altitude_ft;
     private Integer max_altitude_ft;
-    private GeoPoint wp_location;
+    private LatLng wp_location;
     private String effective_time_begin;
     private String effective_time_end;
     private Integer min_speed_kn;
@@ -26,7 +28,10 @@ public class Waypoint {
     public Waypoint(JSONObject jsonObject) {
         this.min_altitude_ft = jsonObject.optInt("min_altitude_ft");
         this.max_altitude_ft = jsonObject.optInt("max_altitude_ft");
-        this.wp_location = new GeoPoint(jsonObject.optJSONObject("wp_location"));
+        JSONObject coords = jsonObject.optJSONObject("wp_location");
+        Double lat = coords.optDouble("lat");
+        Double lon = coords.optDouble("lon");
+        this.wp_location = new LatLng(lat, lon);
         this.effective_time_begin = jsonObject.optString("effective_time_begin");
         this.effective_time_end = jsonObject.optString("effective_time_end");
         this.min_speed_kn = jsonObject.optInt("min_speed_kn");
@@ -54,11 +59,11 @@ public class Waypoint {
         this.max_altitude_ft = max_altitude_ft;
     }
 
-    public GeoPoint getWp_location() {
+    public LatLng getWp_location() {
         return wp_location;
     }
 
-    public void setWp_location(GeoPoint wp_location) {
+    public void setWp_location(LatLng wp_location) {
         this.wp_location = wp_location;
     }
 
