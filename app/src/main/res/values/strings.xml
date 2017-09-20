@@ -1,0 +1,122 @@
+<resources>
+    <string name="app_name">UTM Registry</string>
+
+    <!--Login Credentials-->
+    <string name="login_client_id">utm-android</string>
+    <string name="login_client_secret">utm-android-secret</string>
+    <string name="login_grant_type">password</string>
+
+
+    <string name="mapbox_token">pk.eyJ1IjoiYXR1bGFuYW5kMjA2IiwiYSI6ImNqNWtudDV0dDJ6YzQzM3A4bW1pamh0NDUifQ.qhuqt4cy7QUNsakAnnW5lw</string>
+    <string name="url_mapbox_style">mapbox://styles/mapbox/light-v9</string>
+
+
+    <!--Navigation-->
+    <string name="drawer_close">drawer_close</string>
+    <string name="drawer_open">drawer_open</string>
+
+    <!--Nav Menu Items-->
+    <string name="nav_profile">My Account</string>
+    <string name="nav_flight_plan">Flight Plan</string>
+    <string name="nav_flight_review">Flight Review</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_live_view">Live View</string>
+    <string name="nav_equipment">Equipment</string>
+
+    <!--Urls-->
+    <string name="url_base_address">https://registryapi.z-apps.io</string>
+
+    <string name="url_authentication">/oauth/token</string>
+    <string name="url_user_profile">/user_profile</string>
+
+    <string name="url_flight_plans">/flight_plans</string>
+    <string name="url_flight_plan">/flight_plan</string>
+
+    <string name="url_request_contract">/request_contract</string>
+    <string name="url_contracts">/contracts</string>
+    <string name="url_contract">/contract</string>
+
+    <string name="url_aircrafts">/aircrafts</string>
+    <string name="url_aircraft">/aircraft</string>
+    <string name="url_aircraft_models">/aircraft_models</string>
+
+    <string name="url_airspace">/airspaces</string>
+    <string name="url_notifications">/notifications</string>
+
+
+    <!-- Strings related to login -->
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+
+    <string name="action_sign_in">Login</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_sign_out">Logout</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_username">This username is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_user_profile">User Profile Data not downloaded</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="label_heading_login">Login</string>
+    <string name="label_utm_registry">UTM Registry</string>
+
+    <!--Flight Plan-->
+
+    <string name="plan_none_heading">You don’t have any Flight Plans for now.</string>
+    <string name="plan_none_subheading">Someone need to assign you for BVLOS or If you want to
+        create VLOS path tap below</string>
+    <string name="plan_none_action">Create VLOS Flight Plan</string>
+
+    <string name="plan_card_time_label">Last Updated: </string>
+    <string name="plan_card_time_default">28 Minutes ago</string>
+    <string name="plan_card_time_minute">Minute ago</string>
+    <string name="plan_card_time_minutes">Minutes ago</string>
+    <string name="plan_card_time_hour">Hour ago</string>
+    <string name="plan_card_time_hours">Hours ago</string>
+    <string name="plan_card_time_day">Day ago</string>
+    <string name="plan_card_time_days">Days ago</string>
+    <string name="plan_card_time_week">Week ago</string>
+    <string name="plan_card_time_weeks">Weeks ago</string>
+
+    <string name="plan_fly_now">Fly Now</string>
+
+    <!--Flight Plan Detail-->
+
+    <string name="detail_get_airspace">Show Details</string>
+    <string name="detail_hide_airspace">Hide Details</string>
+
+
+    <string name="detail_group_flight_information">Flight Information</string>
+    <string name="detail_item_flight_plan">Flight Plan</string>
+    <string name="detail_item_flight_type">Flight Plan Type</string>
+    <string name="detail_item_date">Date</string>
+    <string name="detail_item_start_time">Start Time</string>
+    <string name="detail_item_end_time">End Time</string>
+
+    <string name="detail_group_vehicle">Vehicle Information</string>
+    <string name="detail_item_aircraft">Aircraft</string>
+    <string name="detail_item_gross_weight">Gross Weight(lb.)</string>
+    <string name="detail_item_payload_weight">Payload Weight(lb.)</string>
+    <string name="detail_item_fuel_loading">Fuel Loading(%)</string>
+
+    <string name="waypoint_speed_unit">knots</string>
+    <string name="waypoint_altitude_unit">ft.</string>
+    <string name="waypoint_speed">Speed Bounds:\ </string>
+    <string name="waypoint_altitude">Altitude Bounds:\ </string>
+    <string name="waypoint_turn_type">Turn Type:\ </string>
+
+    <!--Notification-->
+    <string name="notification_none_heading">You don\'t have any notifications right now.</string>
+    <string name="notification_none_subheading">When you get info or alert you will see it here.</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="draw_custom_marker_options_title">Mapbox Title</string>
+    <string name="draw_custom_marker_options_snippet">Mapbox Snippet</string>
+    <string name="title_activity_maps">Map</string>
+
+</resources>
