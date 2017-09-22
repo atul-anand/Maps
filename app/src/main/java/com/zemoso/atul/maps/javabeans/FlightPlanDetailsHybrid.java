@@ -4,7 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zemoso on 8/9/17.
@@ -154,5 +156,27 @@ public class FlightPlanDetailsHybrid {
                 ", \"fuel_indicator\":" + fuel_indicator +
                 ", \"payload_weight_lb\":" + payload_weight_lb +
                 '}';
+    }
+
+    public JSONObject toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        List<JSONObject> res_vols = new ArrayList<>();
+        for (ReservedVolume volume : reserved_volumes)
+            res_vols.add(volume.toJSON());
+        List<JSONObject> waypoints = new ArrayList<>();
+        for (Waypoint waypoint : waypoints_info)
+            waypoints.add(waypoint.toJSON());
+        map.put("reserved_volumes", res_vols);
+        map.put("waypoints_info", waypoints);
+        map.put("flight_plan_type", flight_plan_type);
+        map.put("flight_plan_category", flight_plan_category);
+        map.put("route_id", route_id);
+        map.put("altitude_mode", altitude_mode);
+        map.put("props", props);
+        map.put("gross_weight_lb", gross_weight_lb);
+        map.put("fuel_weight_lb", fuel_weight_lb);
+        map.put("fuel_indicator", fuel_indicator);
+        map.put("payload_weight_lb", payload_weight_lb);
+        return new JSONObject(map);
     }
 }

@@ -34,11 +34,12 @@
         android:textSize="@dimen/material_text_body1" />
 
     <TextView
-        android:id="@+id/plan_action"
+        android:id="@+id/plan_create_flight"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="15dp"
+        android:clickable="true"
         android:text="@string/plan_none_action"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"

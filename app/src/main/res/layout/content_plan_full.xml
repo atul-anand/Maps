@@ -3,8 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/plan_recycler"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/create_plan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:padding="10dp"
+            android:text="@string/create_plan_title"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/plan_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

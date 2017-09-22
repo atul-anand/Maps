@@ -84,12 +84,13 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
                     int colorPrimary = context.getResources().getColor(R.color.primary);
                     int colorAccent = context.getResources().getColor(R.color.accent);
                     int colorWhite = context.getResources().getColor(R.color.white);
+                    int colorDark = context.getResources().getColor(R.color.cardview_dark_background);
                     holder.card.setCardBackgroundColor(colorWhite);
                     holder.fly_now.setVisibility(View.GONE);
                     holder.status.setVisibility(View.VISIBLE);
-                    holder.heading.setTextColor(colorAccent);
+                    holder.heading.setTextColor(colorDark);
 //                    holder.created_by.setTextColor(colorAccent);
-                    holder.type.setTextColor(colorAccent);
+                    holder.type.setTextColor(colorDark);
                     holder.updated_time.setTextColor(colorAccent);
                     holder.isLongPressed = false;
                 } else {

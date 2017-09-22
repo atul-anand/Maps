@@ -25,10 +25,15 @@ public class ContractDetails {
 
     public ContractDetails(JSONObject jsonObject) {
         this.props = jsonObject.optJSONObject("props");
-        JSONObject coords = jsonObject.optJSONObject("pilot_location");
-        Double lat = coords.optDouble("lat");
-        Double lon = coords.optDouble("lon");
-        this.pilot_location = new LatLng(lat, lon);
+        try {
+            JSONObject coords = jsonObject.optJSONObject("pilot_location");
+            Double lat = coords.optDouble("lat");
+            Double lon = coords.optDouble("lon");
+            this.pilot_location = new LatLng(lat, lon);
+        } catch (Exception e) {
+            this.pilot_location = new LatLng(0, 0);
+        }
+
         this.description = jsonObject.optString("description");
         this.contract_state = jsonObject.optString("contract_state");
         contract_state_history = new ArrayList<>();

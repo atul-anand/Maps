@@ -4,6 +4,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zemoso on 8/9/17.
  */
@@ -155,5 +158,22 @@ public class Waypoint {
                 ", \"segment_end\":" + segment_end +
                 ", \"wp_props\":" + wp_props +
                 '}';
+    }
+
+    public JSONObject toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("wp_location", wp_location);
+        map.put("effective_time_begin", effective_time_begin);
+        map.put("effective_time_end", effective_time_end);
+        map.put("min_altitude_ft", min_altitude_ft);
+        map.put("max_altitude_ft", max_altitude_ft);
+        map.put("min_speed_kn", min_speed_kn);
+        map.put("max_speed_kn", max_speed_kn);
+        map.put("change_yaw", change_yaw);
+        map.put("mission_notes", mission_notes);
+        map.put("turn_type", turn_type);
+        map.put("segment_end", segment_end);
+        map.put("wp_props", wp_props);
+        return new JSONObject(map);
     }
 }

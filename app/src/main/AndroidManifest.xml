@@ -35,7 +35,11 @@
         </activity>
         <activity
             android:name=".activities.FlightPlanDetail"
-            android:label="@string/app_name" />
+            android:label="@string/app_name">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.zemoso.atul.maps.activities.MainActivity" />
+        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -53,8 +57,15 @@
             android:label="@string/title_activity_maps">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.zemoso.atul.maps.activities.MainActivity"
-                android:theme="@style/AppTheme.TranslucentStatusBar"/>
+                android:theme="@style/AppTheme.TranslucentStatusBar"
+                android:value="com.zemoso.atul.maps.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.CreatePlan"
+            android:label="@string/title_activity_create_plan">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.zemoso.atul.maps.activities.MainActivity" />
         </activity>
     </application>
 

@@ -34,8 +34,10 @@ ext {
     supportLibraryVersion = '25.3.1'
     constraintLayoutVersion = '1.0.2'
 
+    googleMapsVersion = '11.0.4'
     mapBoxVersion = '5.1.3'
     volleyVersion = '1.0.0'
+    gsonVersion = '2.8.1'
 
     gradleVersion = '2.3.3'
 

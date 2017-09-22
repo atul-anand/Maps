@@ -31,6 +31,9 @@
 
     <string name="url_flight_plans">/flight_plans</string>
     <string name="url_flight_plan">/flight_plan</string>
+    <string name="url_flight_request_vlos">/flight_plan_request#vlos</string>
+    <string name="url_flight_request_bvlos">/flight_plan_request</string>
+    <string name="url_flight_request_hybrid">/flight_plan_request#hybrid</string>
 
     <string name="url_request_contract">/request_contract</string>
     <string name="url_contracts">/contracts</string>
@@ -89,6 +92,8 @@
 
     <string name="detail_get_airspace">Show Details</string>
     <string name="detail_hide_airspace">Hide Details</string>
+    <string name="detail_add_details">Add Details</string>
+    <string name="detail_request_contract">Request Contract</string>
 
 
     <string name="detail_group_flight_information">Flight Information</string>
@@ -110,6 +115,10 @@
     <string name="waypoint_altitude">Altitude Bounds:\ </string>
     <string name="waypoint_turn_type">Turn Type:\ </string>
 
+
+    <!--Create Flight Plan-->
+    <string name="create_plan_title">Create VLOS Flight Plan</string>
+
     <!--Notification-->
     <string name="notification_none_heading">You don\'t have any notifications right now.</string>
     <string name="notification_none_subheading">When you get info or alert you will see it here.</string>
@@ -118,5 +127,6 @@
     <string name="draw_custom_marker_options_title">Mapbox Title</string>
     <string name="draw_custom_marker_options_snippet">Mapbox Snippet</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_create_plan">Map</string>
 
 </resources>

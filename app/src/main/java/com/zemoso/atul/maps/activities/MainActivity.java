@@ -112,13 +112,13 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.nav_profile:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments,
-                        MyProfile.newInstance()).addToBackStack("myProfile").commit();
+                        MyProfile.newInstance()).disallowAddToBackStack().commit();
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.nav_profile)
                         , Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_notifications:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments,
-                        Notifications.newInstance()).addToBackStack("notifications").commit();
+                        Notifications.newInstance()).disallowAddToBackStack().commit();
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.nav_notifications)
                         , Toast.LENGTH_SHORT).show();
                 break;
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_flight_plan:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments,
-                        FlightPlan.newInstance()).addToBackStack("flightPlan").commit();
+                        FlightPlan.newInstance()).disallowAddToBackStack().commit();
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.nav_flight_plan)
                         , Toast.LENGTH_SHORT).show();
                 break;
@@ -155,5 +155,6 @@ public class MainActivity extends AppCompatActivity
             mDrawerLayout.closeDrawer(GravityCompat.START);
         else
             super.onBackPressed();
+        finish();
     }
 }

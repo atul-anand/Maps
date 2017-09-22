@@ -113,6 +113,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+//        finish();
+    }
 
     /**
      * Manipulates the map once available.
@@ -213,8 +218,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Double rad = getRadius(radius);
         Double lat = center.latitude;
         Double lon = center.longitude;
-
-        return null;
+        return new LatLng(lat, lon);
     }
 
     private void addCircle(GeoCircle geoCircle, int colorResId, LatLngBounds.Builder builder1) {
@@ -265,6 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        marker.showInfoWindow();
 
 
+
     }
 
     @Override
@@ -275,7 +280,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public View getInfoContents(final Marker marker) {
         View view = getLayoutInflater().inflate(R.layout.content_map_click, null);
-        LatLng latLng = marker.getPosition();
         Waypoint waypoint = mMapMarkers.get(marker);
         TextView tvSpeed = view.findViewById(R.id.tv_speed_bounds);
         TextView tvAltitude = view.findViewById(R.id.tv_altitude_bounds);
@@ -387,7 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_flight_detail, container, false);
+            return inflater.inflate(R.layout.fragment_maps_flight_detail, container, false);
         }
 
         @Override

@@ -23,7 +23,7 @@ public class DateTimeUtils {
         try {
             dat = df.parse(date);
             Log.d(TAG, String.valueOf(dat));
-            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat df2 = new SimpleDateFormat("dd-MMM-yyyy");
             return df2.format(dat);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -39,7 +39,7 @@ public class DateTimeUtils {
         try {
             dat = df.parse(time);
             Log.d(TAG, String.valueOf(dat));
-            SimpleDateFormat df2 = new SimpleDateFormat("hh:mm:ss a");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat df2 = new SimpleDateFormat("hh:mm:ss a '('Z')'");
             return df2.format(dat);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -49,7 +49,7 @@ public class DateTimeUtils {
 
 
     public static String getTimeFromNow(String created_at) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date past;
         try {
             past = df.parse(created_at);

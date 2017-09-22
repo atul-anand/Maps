@@ -2,6 +2,9 @@ package com.zemoso.atul.maps.javabeans;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zemoso on 8/9/17.
  */
@@ -96,5 +99,17 @@ public class FlightPlanRequestHybrid {
                 ", \"description\":\"" + description + '\"' +
                 ", \"flight_plan_details\":" + flight_plan_details +
                 '}';
+    }
+
+    public JSONObject toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("pilot_id", pilot_id);
+        map.put("aircraft_id", aircraft_id);
+        map.put("organization_id", organization_id);
+        map.put("status", status);
+        map.put("description", description);
+        map.put("flight_plan_details", flight_plan_details.toJSON());
+        return new JSONObject(map);
     }
 }

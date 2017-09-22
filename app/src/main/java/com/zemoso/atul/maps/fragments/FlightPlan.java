@@ -1,6 +1,7 @@
 package com.zemoso.atul.maps.fragments;
 
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -21,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.zemoso.atul.maps.R;
+import com.zemoso.atul.maps.activities.CreatePlan;
 import com.zemoso.atul.maps.adapters.FlightPlanAdapter;
 import com.zemoso.atul.maps.javabeans.FlightPlanResponse;
 import com.zemoso.atul.maps.singletons.VolleyRequests;
@@ -50,11 +53,20 @@ public class FlightPlan extends Fragment {
     private FlightPlanDownload flightPlanDownload;
     private List<FlightPlanResponse> flightPlanResponses;
 
+    private TextView mCreatePlan;
+    private TextView mEmptyScreenCreate;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private FlightPlanAdapter mFlightPlanAdapter;
 
+    private View.OnClickListener mCreateListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(getContext(), CreatePlan.class);
+            startActivity(intent);
+        }
+    };
     public FlightPlan() {
         // Required empty public constructor
     }
@@ -82,11 +94,15 @@ public class FlightPlan extends Fragment {
 
         flightPlanResponses = new ArrayList<>();
 
+        mCreatePlan = view.findViewById(R.id.create_plan);
+        mEmptyScreenCreate = view.findViewById(R.id.plan_create_flight);
+
         mRecyclerView = view.findViewById(R.id.plan_recycler);
         mLayoutManager = new LinearLayoutManager(getContext());
         mFlightPlanAdapter = new FlightPlanAdapter(flightPlanResponses, getContext());
 
         mEmptyScreen = view.findViewById(R.id.plan_empty_layout);
+
         showEmptyScreen(true);
 
 
@@ -103,6 +119,9 @@ public class FlightPlan extends Fragment {
         flightPlanDownload = new FlightPlanDownload();
         flightPlanDownload.getFlightPlans();
 
+        mCreatePlan.setOnClickListener(mCreateListener);
+        mEmptyScreenCreate.setOnClickListener(mCreateListener);
+
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -111,6 +130,7 @@ public class FlightPlan extends Fragment {
     }
 
     private void showEmptyScreen(final Boolean show) {
+        mCreatePlan.setVisibility(show ? View.GONE : View.VISIBLE);
         mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         mEmptyScreen.setVisibility(show ? View.VISIBLE : View.GONE);
     }

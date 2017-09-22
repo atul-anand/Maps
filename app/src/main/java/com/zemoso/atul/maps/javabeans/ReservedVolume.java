@@ -2,6 +2,9 @@ package com.zemoso.atul.maps.javabeans;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zemoso on 8/9/17.
  */
@@ -96,5 +99,17 @@ public class ReservedVolume {
                 ", \"max_altitude_ft\":" + max_altitude_ft +
                 ", \"res_vol_props\":" + res_vol_props +
                 '}';
+    }
+
+    public JSONObject toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("reserved_volume_projection", reserved_volume_projection.toJSON());
+        map.put("mission_notes", mission_notes);
+        map.put("effective_time_begin", effective_time_begin);
+        map.put("effective_time_end", effective_time_end);
+        map.put("min_altitude_ft", min_altitude_ft);
+        map.put("max_altitude_ft", max_altitude_ft);
+        map.put("res_vol_props", res_vol_props);
+        return new JSONObject(map);
     }
 }

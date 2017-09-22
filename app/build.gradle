@@ -36,6 +36,7 @@ dependencies {
     compile "com.android.volley:volley:$rootProject.ext.volleyVersion"
     compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
 
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
 
+    compile "com.google.android.gms:play-services-maps:$rootProject.ext.googleMapsVersion"
+    compile "com.google.code.gson:gson:$rootProject.ext.gsonVersion"
 }

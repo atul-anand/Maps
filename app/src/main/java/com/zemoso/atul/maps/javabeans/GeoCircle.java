@@ -5,6 +5,9 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zemoso on 8/9/17.
  */
@@ -65,5 +68,13 @@ public class GeoCircle {
                 ", \"coordinates\":" + coordinates +
                 ", \"radius\":\"" + radius + '\"' +
                 '}';
+    }
+
+    public JSONObject toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", type);
+        map.put("coordinates", coordinates.toString());
+        map.put("radius", radius);
+        return new JSONObject(map);
     }
 }

@@ -186,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuthTask != null) {
             return;
         }
-
+        Log.d(TAG, "Trying to Log in");
         // Reset errors.
         mUsernameView.setError(null);
         mPasswordView.setError(null);
@@ -224,6 +224,7 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+
             mAuthTask = new UserLoginTask(username, password);
             mAuthTask.loginRequest();
         }
