@@ -119,6 +119,12 @@
     <!--Create Flight Plan-->
     <string name="create_plan_title">Create VLOS Flight Plan</string>
 
+    <string-array name="array_flight_plan_type">
+        <item>"VLOS"</item>
+        <item>"BVLOS"</item>
+        <item>"HYBRID"</item>
+    </string-array>
+
     <!--Notification-->
     <string name="notification_none_heading">You don\'t have any notifications right now.</string>
     <string name="notification_none_subheading">When you get info or alert you will see it here.</string>
@@ -128,5 +134,6 @@
     <string name="draw_custom_marker_options_snippet">Mapbox Snippet</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_create_plan">Map</string>
+    <string name="default_date">01/01/2017</string>
 
 </resources>

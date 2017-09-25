@@ -414,6 +414,8 @@ public class LoginActivity extends AppCompatActivity {
                     realm.insertOrUpdate(registryUser);
                     realm.commitTransaction();
                     realm.close();
+                    mEditor.putString("pilot_id", registryUser.getId());
+                    mEditor.apply();
                     Log.d(TAG, String.valueOf(registryUser));
                     showProgress(false);
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);

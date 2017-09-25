@@ -1,5 +1,7 @@
 package com.zemoso.atul.maps.activities;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,12 +13,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,46 +33,37 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.zemoso.atul.maps.R;
+import com.zemoso.atul.maps.javabeans.Aircraft;
 import com.zemoso.atul.maps.javabeans.FlightPlanDetailsHybrid;
 import com.zemoso.atul.maps.javabeans.FlightPlanRequestHybrid;
 import com.zemoso.atul.maps.javabeans.ReservedVolume;
 import com.zemoso.atul.maps.javabeans.Waypoint;
 import com.zemoso.atul.maps.singletons.VolleyRequests;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
+public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, DataCallback {
 
     private static final String TAG = CreatePlan.class.getSimpleName();
-    private static String name;
     private static String pilot_id;
-    private static String aircraft_id;
-    private static String status;
-    private static String organization_id;
-    private static String description;
-    private static String flight_plan_type;
-    private static String flight_plan_category;
-    private static String route_id;
-    private static String altitude_mode;
-    private static JSONObject props;
-    private static Double gross_weight_lb;
-    private static Double fuel_weight_lb;
-    private static Double fuel_indicator;
-    private static Double payload_weight_lb;
     private static FlightPlanDetailsHybrid flightPlanDetails;
     private static FlightPlanRequestHybrid flightPlanRequest;
     private SharedPreferences preferences;
     private Bundle bundle;
     private String mHostname;
     private CreatePlan.FlightPlanUpload mAuthTask = null;
-    private CreatePlan.FlightDetail mFlightDetailFragment;
+    private CreatePlan.FlightDetail mFlightDetailFragment = null;
+    private CreatePlan.AircraftsDownload mAircraftsDownload = null;
     private GoogleMap mMap;
     private Map<Marker, Waypoint> mMapMarkers;
     private List<ReservedVolume> mReservedVolumes;
+    private List<Aircraft> mAircrafts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +73,11 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mHostname = preferences.getString("Hostname", "");
+        pilot_id = preferences.getString("pilot_id", "");
 
-        mFlightDetailFragment = CreatePlan.FlightDetail.newInstance();
-
-        attachFragments();
-
+        getAircrafts();
 
     }
-
 
     /**
      * Manipulates the map once available.
@@ -104,6 +99,9 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void attachFragments() {
+        if (mFlightDetailFragment != null)
+            return;
+        mFlightDetailFragment = CreatePlan.FlightDetail.newInstance(this);
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_in_down,
                         R.anim.slide_out_down, R.anim.slide_out_up)
@@ -115,7 +113,15 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(CreatePlan.this);
     }
 
-    private void attemptUpload() {
+    private void getAircrafts() {
+        if (mAircraftsDownload != null)
+            return;
+
+        mAircraftsDownload = new AircraftsDownload();
+        mAircraftsDownload.getAircrafts();
+    }
+
+    private void attemptUploadPlan() {
 
         Log.d(TAG, "Attempting Upload");
 
@@ -123,19 +129,28 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             return;
         }
 
+        flightPlanRequest = new FlightPlanRequestHybrid();
+
         mFlightDetailFragment.setError();
         mFlightDetailFragment.getData();
         mFlightDetailFragment.validateData();
+        mFlightDetailFragment.setData();
 
         createFlightPlanRequest();
 
     }
 
     private void createFlightPlanRequest() {
-        flightPlanRequest = new FlightPlanRequestHybrid();
+
         mAuthTask = new FlightPlanUpload(flightPlanRequest);
         mAuthTask.uploadPlan();
 
+    }
+    
+
+    @Override
+    public void attemptUpload() {
+        attemptUploadPlan();
     }
 
     public static class FlightDetail extends Fragment {
@@ -143,20 +158,43 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private static final String TAG = CreatePlan.FlightDetail.class.getSimpleName();
 
         private EditText mFlightPlan;
-        private EditText mFlightType;
-        private EditText mDate;
-        private EditText mStartTime;
-        private EditText mEndTime;
+        private Spinner mFlightType;
+        private TextView mDate;
+        private TextView mStartTime;
+        private TextView mEndTime;
         private EditText mAircraft;
         private EditText mGrossWt;
         private EditText mPayloadWt;
         private EditText mFuelLoading;
 
         private String getAirspace;
-        private String hideAirspace;
+        private String requestContract;
 
         private Button mGetAirspace;
         private View mAirspaceDetail;
+
+        private String name;
+        private String aircraft_id;
+        private String status;
+        private String organization_id;
+        private String description;
+        private String flight_plan_type;
+        private String flight_plan_category;
+        private String route_id;
+        private String altitude_mode;
+        private JSONObject props;
+        private Double gross_weight_lb;
+        private Double fuel_weight_lb;
+        private Double fuel_indicator;
+        private Double payload_weight_lb;
+
+        private int year;
+        private int month;
+        private int day;
+        private int hourStart;
+        private int minuteStart;
+        private int hourEnd;
+        private int minuteEnd;
 
 
         private String mFlightPlanText;
@@ -173,27 +211,82 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 
         private Boolean hasDetailedView = false;
 
+        private DataCallback dataCallbackImpl;
+        //region Pickers and Listeners
         private View.OnClickListener getListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (hasDetailedView) {
-                    mAirspaceDetail.setVisibility(View.GONE);
-                    mGetAirspace.setText(getAirspace);
+//                    mAirspaceDetail.setVisibility(View.GONE);
+//                    mGetAirspace.setText(getAirspace);
                     hasDetailedView = false;
-//                    TODO: Attempt Login
+////                    TODO: Attempt Upload
+                    dataCallbackImpl.attemptUpload();
+
                 } else {
                     mAirspaceDetail.setVisibility(View.VISIBLE);
-                    mGetAirspace.setText(hideAirspace);
+                    mGetAirspace.setText(requestContract);
                     hasDetailedView = true;
                 }
+            }
+        };
+        private TimePickerDialog.OnTimeSetListener startTimeListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                mStartTimeText = hourOfDay + ":" + minute;
+                mStartTime.setText(mStartTimeText);
+            }
+        };
+        private View.OnClickListener startTimeClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerDialog dialog = new TimePickerDialog(getActivity(), startTimeListener,
+                        hourStart, minuteStart, true);
+                dialog.show();
+            }
+        };
+        private TimePickerDialog.OnTimeSetListener endTimeListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                mEndTimeText = hourOfDay + ":" + minute;
+                mEndTime.setText(mEndTimeText);
+            }
+        };
+        private View.OnClickListener endTimeClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerDialog dialog = new TimePickerDialog(getActivity(), endTimeListener,
+                        hourEnd, minuteEnd, true);
+                dialog.show();
+            }
+        };
+        private DatePickerDialog.OnDateSetListener datePickerListener
+                = new DatePickerDialog.OnDateSetListener() {
+
+            // when dialog box is closed, below method will be called.
+            public void onDateSet(DatePicker view, int selectedYear,
+                                  int selectedMonth, int selectedDay) {
+                //Do whatever you want
+                mDateText = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
+                mDate.setText(mDateText);
+            }
+        };
+        private View.OnClickListener selectDateListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog dialog = new DatePickerDialog(getActivity(), datePickerListener,
+                        year, month, day);
+                dialog.show();
             }
         };
 
         public FlightDetail() {
         }
 
-        public static CreatePlan.FlightDetail newInstance() {
-            return new CreatePlan.FlightDetail();
+        public static CreatePlan.FlightDetail newInstance(DataCallback instance) {
+            CreatePlan.FlightDetail newInst = new CreatePlan.FlightDetail();
+            newInst.dataCallbackImpl = instance;
+            return newInst;
         }
 
         @Nullable
@@ -208,7 +301,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             Log.d(TAG, "Created");
 
             getAirspace = getActivity().getResources().getString(R.string.detail_add_details);
-            hideAirspace = getActivity().getResources().getString(R.string.detail_request_contract);
+            requestContract = getActivity().getResources().getString(R.string.detail_request_contract);
 
             mGetAirspace = view.findViewById(R.id.profile_get_airspace);
             mAirspaceDetail = view.findViewById(R.id.drawer);
@@ -231,7 +324,36 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             super.onActivityCreated(savedInstanceState);
             Log.d(TAG, "ActivityCreated");
 
+            setDefaults();
+            setClickListeners();
+
+        }
+
+        private void setClickListeners() {
             mGetAirspace.setOnClickListener(getListener);
+            mDate.setOnClickListener(selectDateListener);
+            mStartTime.setOnClickListener(startTimeClickListener);
+            mEndTime.setOnClickListener(endTimeClickListener);
+        }
+
+        private void setDefaults() {
+            Calendar cal = Calendar.getInstance();
+            year = cal.get(Calendar.YEAR);
+            month = cal.get(Calendar.MONTH);
+            day = cal.get(Calendar.DAY_OF_MONTH);
+            mDateText = day + "/" + month + "/" + year;
+            mDate.setText(mDateText);
+
+            hourStart = cal.get(Calendar.HOUR_OF_DAY);
+            minuteStart = cal.get(Calendar.MINUTE);
+            mStartTimeText = hourStart + ":" + minuteStart;
+            mStartTime.setText(mStartTimeText);
+
+            cal.add(Calendar.MINUTE, 10);
+            hourEnd = cal.get(Calendar.HOUR_OF_DAY);
+            minuteEnd = cal.get(Calendar.MINUTE);
+            mEndTimeText = hourEnd + ":" + minuteEnd;
+            mEndTime.setText(mEndTimeText);
 
 
         }
@@ -239,7 +361,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private void setError() {
             Log.d(TAG, "Error Setters");
             mFlightPlan.setError(null);
-            mFlightType.setError(null);
+
             mDate.setError(null);
             mStartTime.setError(null);
             mEndTime.setError(null);
@@ -252,12 +374,11 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private void getData() {
             Log.d(TAG, "Flight Detail Data");
             name = mFlightPlan.getText().toString().trim();
-            pilot_id = "";
             aircraft_id = mAircraft.getText().toString().trim();
-            status = "RECEIVED";
+            status = "DRAFT";
             organization_id = "";
             description = "";
-            flight_plan_type = mFlightType.getText().toString().trim();
+            flight_plan_type = mFlightType.getSelectedItem().toString().trim();
             flight_plan_category = "";
             route_id = "";
             altitude_mode = "";
@@ -277,7 +398,13 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 
         }
 
-
+        public void setData() {
+//            TODO: Setters
+            flightPlanRequest.setName(name);
+            flightPlanRequest.setAircraft_id(aircraft_id);
+            flightPlanRequest.setPilot_id(pilot_id);
+        }
+        //endregion
     }
 
     private class FlightPlanUpload {
@@ -324,5 +451,52 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
         }
     }
+
+    private class AircraftsDownload {
+
+        private String access_token;
+        private String authorization;
+
+        AircraftsDownload() {
+            access_token = preferences.getString("access_token", "");
+            authorization = "Bearer " + access_token;
+        }
+
+        void getAircrafts() {
+            String extension = getResources().getString(R.string.url_aircrafts);
+            String url = mHostname + extension;
+
+            Response.Listener<JSONArray> listener = new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    Log.d(TAG, String.valueOf(response));
+                    for (int i = 0; i < response.length(); i++) {
+                        Aircraft aircraft = new Aircraft(response.optJSONObject(i));
+                        mAircrafts.add(aircraft);
+                    }
+                    attachFragments();
+                }
+            };
+            Response.ErrorListener errorListener = new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, String.valueOf(error));
+                }
+            };
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                    listener, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("Content-Type", "application/json");
+                    params.put("authorization", authorization);
+                    return params;
+                }
+            };
+            VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
+        }
+    }
+
+
 
 }
