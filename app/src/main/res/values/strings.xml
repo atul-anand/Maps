@@ -125,6 +125,11 @@
         <item>"HYBRID"</item>
     </string-array>
 
+    <string-array name="array_altitude_mode">
+        <item>"AGL"</item>
+        <item>"AMSL"</item>
+        <item>"WGS84"</item>
+    </string-array>
     <!--Notification-->
     <string name="notification_none_heading">You don\'t have any notifications right now.</string>
     <string name="notification_none_subheading">When you get info or alert you will see it here.</string>

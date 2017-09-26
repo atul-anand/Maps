@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.zemoso.atul.maps.R;
+import com.zemoso.atul.maps.interfaces.AttemptUploadPlan;
+import com.zemoso.atul.maps.interfaces.UpdateAircraftData;
 import com.zemoso.atul.maps.javabeans.Aircraft;
 import com.zemoso.atul.maps.javabeans.FlightPlanDetailsHybrid;
 import com.zemoso.atul.maps.javabeans.FlightPlanRequestHybrid;
@@ -43,12 +46,13 @@ import com.zemoso.atul.maps.singletons.VolleyRequests;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, DataCallback {
+public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = CreatePlan.class.getSimpleName();
     private static String pilot_id;
@@ -64,6 +68,19 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
     private Map<Marker, Waypoint> mMapMarkers;
     private List<ReservedVolume> mReservedVolumes;
     private List<Aircraft> mAircrafts;
+    private AttemptUploadPlan attemptUploadPlan = new AttemptUploadPlan() {
+        @Override
+        public void attemptUpload() {
+            attemptUploadPlan();
+            Log.d(TAG, "Attempting Upload Plan!");
+        }
+    };
+    private UpdateAircraftData updateAircraftDataImpl = new UpdateAircraftData() {
+        @Override
+        public void updateData() {
+            mFlightDetailFragment.setAircraftSpinnerData();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +92,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         mHostname = preferences.getString("Hostname", "");
         pilot_id = preferences.getString("pilot_id", "");
 
+        mAircraftsDownload.setUpdateAircraftData(updateAircraftDataImpl);
         getAircrafts();
 
     }
@@ -101,7 +119,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
     private void attachFragments() {
         if (mFlightDetailFragment != null)
             return;
-        mFlightDetailFragment = CreatePlan.FlightDetail.newInstance(this);
+        mFlightDetailFragment = CreatePlan.FlightDetail.newInstance(attemptUploadPlan);
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_in_down,
                         R.anim.slide_out_down, R.anim.slide_out_up)
@@ -116,7 +134,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
     private void getAircrafts() {
         if (mAircraftsDownload != null)
             return;
-
+        mAircrafts = new ArrayList<>();
         mAircraftsDownload = new AircraftsDownload();
         mAircraftsDownload.getAircrafts();
     }
@@ -146,12 +164,6 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         mAuthTask.uploadPlan();
 
     }
-    
-
-    @Override
-    public void attemptUpload() {
-        attemptUploadPlan();
-    }
 
     public static class FlightDetail extends Fragment {
 
@@ -162,7 +174,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         private TextView mDate;
         private TextView mStartTime;
         private TextView mEndTime;
-        private EditText mAircraft;
+        private Spinner mAircraft;
         private EditText mGrossWt;
         private EditText mPayloadWt;
         private EditText mFuelLoading;
@@ -203,6 +215,9 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         private String mStartTimeText;
         private String mEndTimeText;
 
+        private String[] aircraftArray;
+        private Map<Integer, String> aircraftMap;
+
         private String mAircraftText;
         private String mGrossWtText;
         private String mPayloadWtText;
@@ -211,7 +226,10 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
 
         private Boolean hasDetailedView = false;
 
-        private DataCallback dataCallbackImpl;
+        private AttemptUploadPlan attemptUploadPlanImpl;
+
+
+
         //region Pickers and Listeners
         private View.OnClickListener getListener = new View.OnClickListener() {
             @Override
@@ -220,8 +238,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
 //                    mAirspaceDetail.setVisibility(View.GONE);
 //                    mGetAirspace.setText(getAirspace);
                     hasDetailedView = false;
-////                    TODO: Attempt Upload
-                    dataCallbackImpl.attemptUpload();
+                    attemptUploadPlanImpl.attemptUpload();
 
                 } else {
                     mAirspaceDetail.setVisibility(View.VISIBLE);
@@ -279,16 +296,20 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
                 dialog.show();
             }
         };
+        //endregion
 
+        //region Constructor
         public FlightDetail() {
         }
 
-        public static CreatePlan.FlightDetail newInstance(DataCallback instance) {
+        public static CreatePlan.FlightDetail newInstance(AttemptUploadPlan instance) {
             CreatePlan.FlightDetail newInst = new CreatePlan.FlightDetail();
-            newInst.dataCallbackImpl = instance;
+            newInst.attemptUploadPlanImpl = instance;
             return newInst;
         }
+        //endregion
 
+        //region Overridden Methods
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -329,6 +350,22 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
 
         }
 
+
+        private void setAircraftSpinnerData() {
+            List<Aircraft> aircrafts = ((CreatePlan) getActivity()).mAircrafts;
+            aircraftArray = new String[aircrafts.size()];
+            aircraftMap = new HashMap<>();
+            for (int i = 0; i < aircrafts.size(); i++) {
+                Aircraft aircraft = aircrafts.get(i);
+                aircraftMap.put(i, aircraft.getId());
+                aircraftArray[i] = aircraft.getName();
+            }
+            ArrayAdapter<String> aircraftAdapter = new ArrayAdapter<String>(getContext(),
+                    android.R.layout.simple_spinner_item, aircraftArray);
+            aircraftAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mAircraft.setAdapter(aircraftAdapter);
+        }
+
         private void setClickListeners() {
             mGetAirspace.setOnClickListener(getListener);
             mDate.setOnClickListener(selectDateListener);
@@ -365,7 +402,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
             mDate.setError(null);
             mStartTime.setError(null);
             mEndTime.setError(null);
-            mAircraft.setError(null);
+
             mGrossWt.setError(null);
             mPayloadWt.setError(null);
             mFuelLoading.setError(null);
@@ -374,7 +411,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         private void getData() {
             Log.d(TAG, "Flight Detail Data");
             name = mFlightPlan.getText().toString().trim();
-            aircraft_id = mAircraft.getText().toString().trim();
+            aircraft_id = aircraftMap.get(mAircraft.getSelectedItemPosition());
             status = "DRAFT";
             organization_id = "";
             description = "";
@@ -403,8 +440,17 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
             flightPlanRequest.setName(name);
             flightPlanRequest.setAircraft_id(aircraft_id);
             flightPlanRequest.setPilot_id(pilot_id);
+            FlightPlanDetailsHybrid flightPlanDetails = new FlightPlanDetailsHybrid();
+            flightPlanRequest.setFlight_plan_details(flightPlanDetails);
+            flightPlanDetails.setGross_weight_lb(gross_weight_lb);
+            flightPlanDetails.setFuel_indicator(fuel_indicator);
+            flightPlanDetails.setFuel_weight_lb(fuel_weight_lb);
+            flightPlanDetails.setPayload_weight_lb(payload_weight_lb);
+
+            Log.d(TAG, String.valueOf(flightPlanRequest));
         }
         //endregion
+
     }
 
     private class FlightPlanUpload {
@@ -457,6 +503,8 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
         private String access_token;
         private String authorization;
 
+        private UpdateAircraftData updateAircraftData;
+
         AircraftsDownload() {
             access_token = preferences.getString("access_token", "");
             authorization = "Bearer " + access_token;
@@ -475,6 +523,8 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
                         mAircrafts.add(aircraft);
                     }
                     attachFragments();
+                    updateAircraftData.updateData();
+
                 }
             };
             Response.ErrorListener errorListener = new Response.ErrorListener() {
@@ -494,6 +544,10 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, 
                 }
             };
             VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
+        }
+
+        public void setUpdateAircraftData(UpdateAircraftData updateAircraftData) {
+            this.updateAircraftData = updateAircraftData;
         }
     }
 

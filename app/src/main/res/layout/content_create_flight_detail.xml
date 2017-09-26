@@ -219,7 +219,7 @@
                 android:textColor="@color/primary_text"
                 android:textStyle="bold" />
 
-            <EditText
+            <Spinner
                 android:id="@+id/text_aircraft"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
