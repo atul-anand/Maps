@@ -62,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = MapsActivity.class.getSimpleName();
     private static Boolean isFlightDownloaded = false;
     private static Boolean isContractDownloaded = false;
+    private static Boolean isAircraftDownloaded = false;
     private static List<Waypoint> waypoints;
     private static List<ReservedVolume> reservedVolumes;
     private static FlightPlanDetailsHybrid flightPlanDetails;
@@ -71,17 +72,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SharedPreferences preferences;
     private Bundle bundle;
     private String mHostname;
-    private MapsActivity.FlightPlanDownload flightPlanDownload;
-    private MapsActivity.ContractDownload contractDownload;
+    private MapsActivity.FlightPlanDownload flightPlanDownload = new MapsActivity.FlightPlanDownload();
+    private MapsActivity.ContractDownload contractDownload = new MapsActivity.ContractDownload();
+    private MapsActivity.AircraftDownload aircraftDownload = new MapsActivity.AircraftDownload();
     private MapsActivity.FlightDetail flightDetail;
 
     private String flight_plan_id;
     private String flight_title;
     private String contract_id;
+    private String aircraft_id;
 
     private GoogleMap mMap;
     private Map<Marker, Waypoint> mMapMarkers;
     private List<CircleOptions> mMapCircles;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         flight_plan_id = bundle.getString("flight_plan_id");
         flight_title = bundle.getString("flight_title");
         contract_id = bundle.getString("contract_id");
+        aircraft_id = bundle.getString("aircraft_id");
 
         setTitle(flight_title);
 
@@ -104,12 +109,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         flightDetail = MapsActivity.FlightDetail.newInstance();
 
-        flightPlanDownload = new MapsActivity.FlightPlanDownload();
         flightPlanDownload.getFlightPlan();
 
-        contractDownload = new MapsActivity.ContractDownload();
         contractDownload.getContract();
 
+        aircraftDownload.getContract();
 
     }
 
@@ -195,8 +199,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng point = geoCircle.getCoordinates();
                     builder1.include(geoCircle.getCoordinates());
                     LatLng pointRight = getHorizontalBoundary(geoCircle);
-                    Log.d(TAG, String.valueOf(point));
-                    addCircle(geoCircle, R.color.map_circle, builder1);
+                    Log.d(TAG, String.valueOf(pointRight));
+                    addCircle(geoCircle, R.color.map_circle);
                     Log.d(TAG, String.valueOf(point));
                 }
 //                LatLngBounds bounds1 = builder1.build();
@@ -216,12 +220,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng center = geoCircle.getCoordinates();
         String radius = geoCircle.getRadius();
         Double rad = getRadius(radius);
+        Log.d(TAG, String.valueOf(rad));
         Double lat = center.latitude;
         Double lon = center.longitude;
         return new LatLng(lat, lon);
     }
 
-    private void addCircle(GeoCircle geoCircle, int colorResId, LatLngBounds.Builder builder1) {
+    private void addCircle(GeoCircle geoCircle, int colorResId) {
         LatLng center = geoCircle.getCoordinates();
         Double radius = getRadius(geoCircle.getRadius());
 //        radius = 1000.0;
@@ -330,7 +335,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private Boolean isDownloaded() {
-        return isContractDownloaded && isFlightDownloaded;
+        return isContractDownloaded && isFlightDownloaded && isAircraftDownloaded;
     }
 
     public static class FlightDetail extends Fragment {
@@ -431,7 +436,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mStartTimeText = DateTimeUtils.getTimeFromString(mStartTimeText);
             mEndTimeText = contract.getEnd_time();
             mEndTimeText = DateTimeUtils.getTimeFromString(mEndTimeText);
-            mAircraftText = flightPlan.getAircraft_id();
+            mAircraftText = aircraft.getId();
             mGrossWtText = String.valueOf(flightPlanDetails.getGross_weight_lb());
             mPayloadWtText = String.valueOf(flightPlanDetails.getPayload_weight_lb());
             mFuelLoadingText = String.valueOf(flightPlanDetails.getFuel_weight_lb());
@@ -501,7 +506,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     listener, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("authorization", authorization);
                     return params;
@@ -552,7 +557,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     listener, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("authorization", authorization);
                     return params;
@@ -561,6 +566,59 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
         }
     }
+
+    private class AircraftDownload {
+
+        private String access_token;
+        private String authorization;
+
+        AircraftDownload() {
+            access_token = preferences.getString("access_token", "");
+            authorization = "Bearer " + access_token;
+        }
+
+        @Override
+        public String toString() {
+            return "?id=" + aircraft_id;
+        }
+
+        private void getContract() {
+//            TODO: Ask
+            String extension = getResources().getString(R.string.url_aircraft);
+            String url = mHostname + extension;
+            url += this.toString();
+            Log.d(TAG, url);
+
+            Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.d(TAG, String.valueOf(response));
+                    aircraft = new Aircraft(response);
+                    isAircraftDownloaded = true;
+                    if (isDownloaded())
+                        attachFragments();
+                }
+            };
+            Response.ErrorListener errorListener = new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, String.valueOf(error));
+                }
+            };
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                    listener, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/json");
+                    params.put("authorization", authorization);
+                    return params;
+                }
+            };
+            VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+        }
+    }
+
 
     private class AirspaceDownload {
 
@@ -601,7 +659,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     listener, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("authorization", authorization);
                     return params;

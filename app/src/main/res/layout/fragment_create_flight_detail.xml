@@ -15,20 +15,42 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/profile_get_airspace"
-            style="?android:textAppearanceSmall"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/login_button"
-            android:padding="10dp"
-            android:text="@string/detail_add_details"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/profile_get_airspace"
+                style="?android:textAppearanceSmall"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/login_button"
+                android:padding="10dp"
+                android:text="@string/detail_add_details"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text" />
+
+            <Button
+                android:id="@+id/profile_request_contract"
+                style="?android:textAppearanceSmall"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/login_button"
+                android:padding="10dp"
+                android:text="@string/detail_request_contract"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                android:visibility="gone" />
+        </LinearLayout>
         <include layout="@layout/content_create_flight_detail" />
     </LinearLayout>
 

@@ -44,18 +44,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-//    private static final String[] DUMMY_CREDENTIALS = new String[]{
-//            "foo@example.com:hello", "bar@example.com:world"
-//    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     @Nullable
@@ -380,6 +368,7 @@ public class LoginActivity extends AppCompatActivity {
                     mEditor.putString("refresh_token", refresh_token);
                     mEditor.apply();
                     getUserData();
+                    mAuthTask = null;
                 }
             };
             Response.ErrorListener loginErrorListener = new Response.ErrorListener() {
@@ -389,7 +378,7 @@ public class LoginActivity extends AppCompatActivity {
                     showProgress(false);
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
-
+                    mAuthTask = null;
 //                    startActivity(new Intent(getApplicationContext(),MainActivity.class));
                 }
             };
@@ -435,7 +424,7 @@ public class LoginActivity extends AppCompatActivity {
                     userProfileListener, userProfileErrorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     return params;
                 }

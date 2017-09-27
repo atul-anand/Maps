@@ -62,6 +62,7 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="error_user_profile">User Profile Data not downloaded</string>
+    <string name="error_number_required">This field must contain a number</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
@@ -98,16 +99,27 @@
 
     <string name="detail_group_flight_information">Flight Information</string>
     <string name="detail_item_flight_plan">Flight Plan</string>
+    <string name="detail_item_description">Description</string>
     <string name="detail_item_flight_type">Flight Plan Type</string>
     <string name="detail_item_date">Date</string>
     <string name="detail_item_start_time">Start Time</string>
     <string name="detail_item_end_time">End Time</string>
+    <string name="detail_item_altitude_mode">Altitude Mode</string>
 
     <string name="detail_group_vehicle">Vehicle Information</string>
     <string name="detail_item_aircraft">Aircraft</string>
     <string name="detail_item_gross_weight">Gross Weight(lb.)</string>
     <string name="detail_item_payload_weight">Payload Weight(lb.)</string>
     <string name="detail_item_fuel_loading">Fuel Loading(%)</string>
+    <string name="detail_item_fuel_indicator">Fuel Indicator</string>
+
+    <string name="detail_default_flight_plan">Click to enter</string>
+    <string name="detail_default_description">Click to enter</string>
+    <string name="detail_default_gross_weight">Click to enter</string>
+    <string name="detail_default_payload_weight">Click to enter</string>
+    <string name="detail_default_fuel_loading">Click to enter</string>
+    <string name="detail_default_fuel_indicator">Click to enter</string>
+
 
     <string name="waypoint_speed_unit">knots</string>
     <string name="waypoint_altitude_unit">ft.</string>
@@ -140,5 +152,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_create_plan">Map</string>
     <string name="default_date">01/01/2017</string>
+    <string name="send">OK</string>
+
 
 </resources>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,17 +45,17 @@ public class FlightPlan extends Fragment {
     private static final String TAG = FlightPlan.class.getSimpleName();
 
     private SharedPreferences preferences;
-    private String access_token;
 
     private LinearLayout mEmptyScreen;
 
     private String mHostname;
 
-    private FlightPlanDownload flightPlanDownload;
+    private FlightPlanDownload flightPlanDownload = new FlightPlanDownload();
     private List<FlightPlanResponse> flightPlanResponses;
 
     private TextView mCreatePlan;
     private TextView mEmptyScreenCreate;
+    private NestedScrollView mNestedScrollView;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -88,14 +89,14 @@ public class FlightPlan extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        access_token = preferences.getString("access_token", "");
         mHostname = preferences.getString("Hostname", "");
-        Log.d(TAG, access_token);
 
         flightPlanResponses = new ArrayList<>();
 
         mCreatePlan = view.findViewById(R.id.create_plan);
         mEmptyScreenCreate = view.findViewById(R.id.plan_create_flight);
+
+        mNestedScrollView = view.findViewById(R.id.nested_scroll);
 
         mRecyclerView = view.findViewById(R.id.plan_recycler);
         mLayoutManager = new LinearLayoutManager(getContext());
@@ -116,7 +117,6 @@ public class FlightPlan extends Fragment {
         getActivity().setTitle(getResources().getString(R.string.nav_flight_plan));
 
 
-        flightPlanDownload = new FlightPlanDownload();
         flightPlanDownload.getFlightPlans();
 
         mCreatePlan.setOnClickListener(mCreateListener);
@@ -130,17 +130,16 @@ public class FlightPlan extends Fragment {
     }
 
     private void showEmptyScreen(final Boolean show) {
-        mCreatePlan.setVisibility(show ? View.GONE : View.VISIBLE);
-        mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mNestedScrollView.setVisibility(show ? View.GONE : View.VISIBLE);
         mEmptyScreen.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private class FlightPlanDownload {
-        private String status;
-        private String start_time;
-        private String end_time;
-        private Integer page_size;
-        private Integer offset;
+        //        private String status;
+//        private String start_time;
+//        private String end_time;
+//        private Integer page_size;
+//        private Integer offset;
         private String access_token;
         private String authorization;
 
@@ -183,7 +182,7 @@ public class FlightPlan extends Fragment {
                     listener, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("authorization", authorization);
                     return params;

@@ -39,4 +39,5 @@ dependencies {
 
     compile "com.google.android.gms:play-services-maps:$rootProject.ext.googleMapsVersion"
     compile "com.google.code.gson:gson:$rootProject.ext.gsonVersion"
+
 }

@@ -108,9 +108,9 @@ public class Notifications extends Fragment {
     }
 
     private class NotificationDownload {
-        private String start_date;
-        private String end_date;
-        private Integer limit;
+        //        private String start_date;
+//        private String end_date;
+//        private Integer limit;
         private String access_token;
         private String authorization;
 
@@ -149,7 +149,7 @@ public class Notifications extends Fragment {
                     listener, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("authorization", authorization);
                     return params;

@@ -77,9 +77,12 @@ public class FlightPlanDetail extends AppCompatActivity {
         setContentView(view);
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
+        try {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        } catch (NullPointerException e) {
+            Log.e(TAG, String.valueOf(e));
+        }
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mHostname = getResources().getString(R.string.url_base_address);
 

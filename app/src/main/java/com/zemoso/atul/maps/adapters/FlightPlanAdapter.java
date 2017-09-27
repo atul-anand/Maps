@@ -100,6 +100,7 @@ public class FlightPlanAdapter extends RecyclerView.Adapter<FlightPlanAdapter.Re
                     args.putString("flight_plan_id", flightPlanResponse.getId());
                     args.putString("flight_title", flightPlanResponse.getName());
                     args.putString("contract_id", flightPlanResponse.getContract_id());
+                    args.putString("aircraft_id", flightPlanResponse.getAircraft_id());
                     intent.putExtras(args);
                     context.startActivity(intent);
                 }

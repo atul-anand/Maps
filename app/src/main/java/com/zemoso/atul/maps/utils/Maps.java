@@ -8,9 +8,6 @@ import com.zemoso.atul.maps.R;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-/**
- * Created by zemoso on 4/9/17.
- */
 
 public class Maps extends Application {
 

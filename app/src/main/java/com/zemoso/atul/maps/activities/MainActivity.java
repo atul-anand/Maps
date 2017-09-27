@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         Log.d(TAG, "onPrepareOptionsMenu");
         // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mNavigationView);
+//        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mNavigationView);
 //        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
 //        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
