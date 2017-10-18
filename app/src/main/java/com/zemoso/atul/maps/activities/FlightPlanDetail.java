@@ -57,7 +57,7 @@ public class FlightPlanDetail extends AppCompatActivity {
     private static Aircraft aircraft;
 
 
-    private FlightPlanDownload flightPlanDownload;
+    private FlightPlanDownload flightPlanDownload = null;
     private SharedPreferences preferences;
     private String mHostname;
     private Toolbar mToolbar;

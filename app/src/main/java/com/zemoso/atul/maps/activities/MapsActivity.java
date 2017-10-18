@@ -59,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter,
         GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
 
+    //region Variable Declaration
     private static final String TAG = MapsActivity.class.getSimpleName();
     private static Boolean isFlightDownloaded = false;
     private static Boolean isContractDownloaded = false;
@@ -72,21 +73,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SharedPreferences preferences;
     private Bundle bundle;
     private String mHostname;
-    private MapsActivity.FlightPlanDownload flightPlanDownload = new MapsActivity.FlightPlanDownload();
-    private MapsActivity.ContractDownload contractDownload = new MapsActivity.ContractDownload();
-    private MapsActivity.AircraftDownload aircraftDownload = new MapsActivity.AircraftDownload();
+    private MapsActivity.FlightPlanDownload flightPlanDownload = null;
+    private MapsActivity.ContractDownload contractDownload = null;
+    private MapsActivity.AircraftDownload aircraftDownload = null;
     private MapsActivity.FlightDetail flightDetail;
+    private GoogleMap mMap;
+    private Map<Marker, Waypoint> mMapMarkers;
+    private List<CircleOptions> mMapCircles;
 
     private String flight_plan_id;
     private String flight_title;
     private String contract_id;
     private String aircraft_id;
+    //endregion
 
-    private GoogleMap mMap;
-    private Map<Marker, Waypoint> mMapMarkers;
-    private List<CircleOptions> mMapCircles;
-
-
+    //region Overridden Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,10 +110,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         flightDetail = MapsActivity.FlightDetail.newInstance();
 
+        flightPlanDownload = new FlightPlanDownload();
         flightPlanDownload.getFlightPlan();
 
+        contractDownload = new ContractDownload();
         contractDownload.getContract();
 
+        aircraftDownload = new AircraftDownload();
         aircraftDownload.getContract();
 
     }
@@ -216,54 +220,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private LatLng getHorizontalBoundary(GeoCircle geoCircle) {
-        LatLng center = geoCircle.getCoordinates();
-        String radius = geoCircle.getRadius();
-        Double rad = getRadius(radius);
-        Log.d(TAG, String.valueOf(rad));
-        Double lat = center.latitude;
-        Double lon = center.longitude;
-        return new LatLng(lat, lon);
-    }
-
-    private void addCircle(GeoCircle geoCircle, int colorResId) {
-        LatLng center = geoCircle.getCoordinates();
-        Double radius = getRadius(geoCircle.getRadius());
-//        radius = 1000.0;
-        CircleOptions circleOptions = new CircleOptions().center(center).radius(radius)
-                .fillColor(colorResId);
-        mMapCircles.add(circleOptions);
-        Circle circle = mMap.addCircle(circleOptions);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                circleOptions.getCenter(), getZoomLevel(circle)));
-    }
-
-    public int getZoomLevel(Circle circle) {
-        int zoomLevel = 11;
-        if (circle != null) {
-            double radius = circle.getRadius() + circle.getRadius() / 2;
-            double scale = radius / 500;
-            zoomLevel = (int) (16 - Math.log(scale) / Math.log(2));
-        }
-        zoomLevel -= 2;
-        return zoomLevel;
-    }
-
-    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
-
-    private Double getRadius(String radius) {
-        String ft = radius.substring(0, radius.indexOf('f'));
-        Double rad = Double.parseDouble(ft);
-        return rad * 0.3048;
-    }
-
     @Override
     public void onMapClick(LatLng latLng) {
 //        MarkerOptions markerOptions = new MarkerOptions();
@@ -321,6 +277,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onInfoWindowClick(Marker marker) {
         marker.hideInfoWindow();
     }
+    //endregion
+
+    //region Private Methods
+
+    private LatLng getHorizontalBoundary(GeoCircle geoCircle) {
+        LatLng center = geoCircle.getCoordinates();
+        String radius = geoCircle.getRadius();
+        Double rad = getRadius(radius);
+        Log.d(TAG, String.valueOf(rad));
+        Double lat = center.latitude;
+        Double lon = center.longitude;
+        return new LatLng(lat, lon);
+    }
+
+    private void addCircle(GeoCircle geoCircle, int colorResId) {
+        LatLng center = geoCircle.getCoordinates();
+        Double radius = getRadius(geoCircle.getRadius());
+//        radius = 1000.0;
+        CircleOptions circleOptions = new CircleOptions().center(center).radius(radius)
+                .fillColor(colorResId);
+        mMapCircles.add(circleOptions);
+        Circle circle = mMap.addCircle(circleOptions);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                circleOptions.getCenter(), getZoomLevel(circle)));
+    }
+
+    public int getZoomLevel(Circle circle) {
+        int zoomLevel = 11;
+        if (circle != null) {
+            double radius = circle.getRadius() + circle.getRadius() / 2;
+            double scale = radius / 500;
+            zoomLevel = (int) (16 - Math.log(scale) / Math.log(2));
+        }
+        zoomLevel -= 2;
+        return zoomLevel;
+    }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    private Double getRadius(String radius) {
+        String ft = radius.substring(0, radius.indexOf('f'));
+        Double rad = Double.parseDouble(ft);
+        return rad * 0.3048;
+    }
 
     private void attachFragments() {
         getSupportFragmentManager().beginTransaction()
@@ -337,16 +344,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean isDownloaded() {
         return isContractDownloaded && isFlightDownloaded && isAircraftDownloaded;
     }
+    //endregion
 
     public static class FlightDetail extends Fragment {
 
+        //region Variable Declaration
         private static final String TAG = MapsActivity.FlightDetail.class.getSimpleName();
-
-        private String getAirspace;
-        private String hideAirspace;
-
-        private Button mGetAirspace;
-        private View mAirspaceDetail;
 
         private TextView mFlightPlan;
         private TextView mFlightType;
@@ -358,6 +361,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         private TextView mPayloadWt;
         private TextView mFuelLoading;
 
+        private Button mGetAirspace;
+        private View mAirspaceDetail;
+
         private String mFlightPlanText;
         private String mFlightTypeText;
         private String mDateText;
@@ -368,6 +374,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         private String mGrossWtText;
         private String mPayloadWtText;
         private String mFuelLoadingText;
+
+        private String getAirspace;
+        private String hideAirspace;
 
         private Boolean hasDetailedView = false;
 
@@ -385,14 +394,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         };
+        //endregion
 
+        //region Constructor
         public FlightDetail() {
         }
 
         public static MapsActivity.FlightDetail newInstance() {
             return new MapsActivity.FlightDetail();
         }
+        //endregion
 
+        //region Overrridden Methods
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -436,7 +449,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mStartTimeText = DateTimeUtils.getTimeFromString(mStartTimeText);
             mEndTimeText = contract.getEnd_time();
             mEndTimeText = DateTimeUtils.getTimeFromString(mEndTimeText);
-            mAircraftText = aircraft.getId();
+            mAircraftText = aircraft.getName();
             mGrossWtText = String.valueOf(flightPlanDetails.getGross_weight_lb());
             mPayloadWtText = String.valueOf(flightPlanDetails.getPayload_weight_lb());
             mFuelLoadingText = String.valueOf(flightPlanDetails.getFuel_weight_lb());
@@ -457,7 +470,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         }
-
+        //endregion
     }
 
     private class FlightPlanDownload {
@@ -618,7 +631,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             VolleyRequests.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
         }
     }
-
 
     private class AirspaceDownload {
 

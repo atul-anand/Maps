@@ -30,9 +30,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.zemoso.atul.maps.R;
 import com.zemoso.atul.maps.fragments.TextEntryDialog;
 import com.zemoso.atul.maps.interfaces.AttemptUploadPlan;
@@ -40,9 +41,11 @@ import com.zemoso.atul.maps.interfaces.UpdateAircraftData;
 import com.zemoso.atul.maps.javabeans.Aircraft;
 import com.zemoso.atul.maps.javabeans.FlightPlanDetailsHybrid;
 import com.zemoso.atul.maps.javabeans.FlightPlanRequestHybrid;
+import com.zemoso.atul.maps.javabeans.GeoCircle;
 import com.zemoso.atul.maps.javabeans.ReservedVolume;
 import com.zemoso.atul.maps.javabeans.Waypoint;
 import com.zemoso.atul.maps.singletons.VolleyRequests;
+import com.zemoso.atul.maps.utils.CircleTouchView;
 import com.zemoso.atul.maps.utils.DateTimeUtils;
 
 import org.json.JSONArray;
@@ -54,22 +57,52 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
+public class CreatePlan extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnCircleClickListener, GoogleMap.OnMapLongClickListener {
 
+    //region Variable Declaration
     private static final String TAG = CreatePlan.class.getSimpleName();
     private static String pilot_id;
     private static FlightPlanRequestHybrid flightPlanRequest;
     private static List<Waypoint> mWaypoints;
+    //endregion
     private static List<ReservedVolume> mReservedVolumes;
     private static List<Aircraft> mAircrafts;
-    private SharedPreferences preferences;
-    private Bundle bundle;
-    private String mHostname;
+    private static Boolean isCircleDrawn = false;
+    //endregion
+    private static Double radius = 10000.0;
+    //region Inner Class Instances
     private CreatePlan.FlightPlanUpload mAuthTask = null;
     private CreatePlan.FlightDetail mFlightDetailFragment = null;
     private CreatePlan.AircraftsDownload mAircraftsDownload = null;
+    //region System Data
+    private SharedPreferences preferences;
+    private Bundle bundle;
+    private String mHostname;
+    //region View Data
+    private String flightPlanType = "VLOS";
+    private CircleTouchView mCircle;
     private GoogleMap mMap;
     private Map<Marker, Waypoint> mMapMarkers;
+    private List<Circle> mMapCircles;
+    //endregion
+    private UpdateAircraftData updateAircraftDataImpl = new UpdateAircraftData() {
+        @Override
+        public void updateData() {
+            mFlightDetailFragment.setAircraftSpinnerData();
+
+        }
+    };
+    private GeoCircle reserved_volume_projection;
+    //endregion
+
+    //endregion
+    private String mission_notes;
+    private String effective_time_begin;
+    private String effective_time_end;
+    private Double min_altitude_ft;
+    private Double max_altitude_ft;
+    private JSONObject res_vol_props;
+    //region Interface Callbacks
     private AttemptUploadPlan attemptUploadPlan = new AttemptUploadPlan() {
         @Override
         public void attemptUpload() {
@@ -77,49 +110,8 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             Log.d(TAG, "Attempting Upload Plan!");
         }
     };
-    private UpdateAircraftData updateAircraftDataImpl = new UpdateAircraftData() {
-        @Override
-        public void updateData() {
-            mFlightDetailFragment.setAircraftSpinnerData();
-        }
-    };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_plan);
-
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        mHostname = preferences.getString("Hostname", "");
-        pilot_id = preferences.getString("pilot_id", "");
-
-        getAircrafts();
-
-    }
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        mReservedVolumes = new ArrayList<>();
-        mWaypoints = new ArrayList<>();
-
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-    }
-
+    //region Private Methods
     private void attachFragments() {
         if (mFlightDetailFragment != null)
             return;
@@ -144,6 +136,34 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         mAircraftsDownload.getAircrafts();
     }
 
+    private void getMapData() {
+//        TODO: Populate Reserved Volume
+        reserved_volume_projection = new GeoCircle();
+        mission_notes = "mission";
+        effective_time_begin = "tb";
+        effective_time_end = "te";
+        min_altitude_ft = 50.0;
+        max_altitude_ft = 70.0;
+        res_vol_props = new JSONObject();
+        setMapData();
+    }
+
+    private void setMapData() {
+        CircleTouchView.Circle circle = mCircle.circle;
+        ReservedVolume reservedVolume = new ReservedVolume();
+        reservedVolume.setReserved_volume_projection(reserved_volume_projection);
+        reservedVolume.setMission_notes(mission_notes);
+        reservedVolume.setEffective_time_begin(effective_time_begin);
+        reservedVolume.setEffective_time_end(effective_time_end);
+        reservedVolume.setMin_altitude_ft(min_altitude_ft);
+        reservedVolume.setMax_altitude_ft(max_altitude_ft);
+        reservedVolume.setRes_vol_props(res_vol_props);
+        Log.d(TAG, String.valueOf(reservedVolume));
+        mReservedVolumes.add(reservedVolume);
+
+
+    }
+
     private void attemptUploadPlan() {
 
         Log.d(TAG, "Attempting Upload");
@@ -154,10 +174,13 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 
         flightPlanRequest = new FlightPlanRequestHybrid();
 
+
         mFlightDetailFragment.setError();
         mFlightDetailFragment.getData();
-        if (mFlightDetailFragment.validateData())
+        if (mFlightDetailFragment.validateData()) {
+            getMapData();
             createFlightPlanRequest();
+        }
 
     }
 
@@ -167,11 +190,123 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         mAuthTask.uploadPlan();
 
     }
+    //endregion
+
+    //region Overridden Methods
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_plan);
+
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        mHostname = preferences.getString("Hostname", "");
+        pilot_id = preferences.getString("pilot_id", "");
+
+        attachFragments();
+        getAircrafts();
+
+    }
+
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+
+        mCircle = findViewById(R.id.map_circle);
+//        mCircle.setCircle(new Circle());
+
+        mMap.setOnMapClickListener(this);
+        mMap.setOnCircleClickListener(this);
+        mMap.setOnMapLongClickListener(this);
+        // Add a marker in Sydney and move the camera
+        mReservedVolumes = new ArrayList<>();
+        mWaypoints = new ArrayList<>();
+        mMapCircles = new ArrayList<>();
+        mMapMarkers = new HashMap<>();
+
+        switch (flightPlanType) {
+            case "VLOS":
+
+
+                break;
+            case "BVLOS":
+
+                break;
+            case "HYBRID":
+
+                break;
+        }
+    }
+
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        focusCamera();
+    }
+
+    private void addCircleAtLatLng(LatLng latLng, Double radius, int strokeColor, float strokeWidth) {
+        CircleOptions circleOptions = new CircleOptions().center(latLng).radius(radius)
+                .strokeColor(strokeColor).strokeWidth(strokeWidth).clickable(true);
+        Circle circle = mMap.addCircle(circleOptions);
+        mMapCircles.add(circle);
+        focusCamera();
+    }
+
+    public int getZoomLevel(Circle circle) {
+        int zoomLevel = 11;
+        if (circle != null) {
+            double radius = circle.getRadius() + circle.getRadius() / 2;
+            double scale = radius / 500;
+            zoomLevel = (int) (16 - Math.log(scale) / Math.log(2));
+        }
+        zoomLevel -= 2;
+        return zoomLevel;
+    }
+
+    @Override
+    public void onCircleClick(Circle circle) {
+        Log.d(TAG, String.valueOf(circle.getCenter()));
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        Log.d(TAG, String.valueOf(latLng));
+        if (!isCircleDrawn) {
+            int strokeColor = getResources().getColor(R.color.mapbox_blue);
+            float strokeWidth = getResources().getDimension(R.dimen.map_polyline_stroke);
+            addCircleAtLatLng(latLng, radius, strokeColor, strokeWidth);
+            isCircleDrawn = true;
+        }
+    }
+
+    public void focusCamera() {
+        for (Circle circle : mMapCircles)
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    circle.getCenter(), getZoomLevel(circle)));
+    }
+
+
+    //endregion
 
     public static class FlightDetail extends Fragment {
 
+        //region Variable Declaration
         private static final String TAG = CreatePlan.FlightDetail.class.getSimpleName();
 
+        private AttemptUploadPlan attemptUploadPlanImpl;
+
+        //region Views
         private TextView mFlightPlan;
         private TextView mDescription;
         private Spinner mFlightType;
@@ -185,13 +320,18 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private TextView mFuelLoading;
         private TextView mFuelIndicator;
 
-        private String getAirspace;
-        private String hideDetails;
-
         private Button mGetAirspace;
         private Button mRequestContract;
         private View mAirspaceDetail;
+        //endregion
 
+        //region Toggles
+        private Boolean hasDetailedView = false;
+        private String getAirspace;
+        private String hideDetails;
+        //endregion
+
+        //region Object Variables
         private String name;
         private String aircraft_id;
         private String status;
@@ -206,8 +346,11 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private Double fuel_weight_lb;
         private Double fuel_indicator;
         private Double payload_weight_lb;
+        //endregion
 
-
+        //region View Data
+        private List<String> aircraftArray;
+        private Map<Integer, Aircraft> aircraftsMap;
 
         private String mFlightPlanText;
         private String mDescriptionText;
@@ -218,20 +361,11 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         private String mOrganizationIdText;
         private String mAircraftIdText;
         private String mAltitudeModeText;
-
-        private List<String> aircraftArray;
-        private Map<Integer, Aircraft> aircraftsMap;
-
         private String mGrossWtText;
         private String mPayloadWtText;
         private String mFuelLoadingText;
         private String mFuelIndicatorText;
-
-
-        private Boolean hasDetailedView = false;
-
-        private AttemptUploadPlan attemptUploadPlanImpl;
-
+        //endregion
 
         //region Pickers and Listeners
         private View.OnClickListener requestListener = new View.OnClickListener() {
@@ -473,6 +607,7 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         };
 
         //endregion
+        //endregion
 
         //region Constructor
         public FlightDetail() {
@@ -504,7 +639,6 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             mRequestContract = view.findViewById(R.id.profile_request_contract);
             mAirspaceDetail = view.findViewById(R.id.drawer);
 
-            mAirspaceDetail.setVisibility(View.GONE);
 
             mFlightPlan = view.findViewById(R.id.text_flight_plan);
             mDescription = view.findViewById(R.id.text_description);
@@ -518,6 +652,9 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             mPayloadWt = view.findViewById(R.id.text_payload_weight);
             mFuelLoading = view.findViewById(R.id.text_fuel_loading);
             mFuelIndicator = view.findViewById(R.id.text_fuel_indicator);
+
+
+            mAirspaceDetail.setVisibility(View.GONE);
         }
 
         @Override
@@ -531,6 +668,22 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         }
         //endregion
 
+        //region Private Methods
+        private void setClickListeners() {
+            mFlightPlan.setOnClickListener(selectFlightPlanListener);
+            mDescription.setOnClickListener(selectDescriptionListener);
+            mDate.setOnClickListener(selectDateListener);
+            mStartTime.setOnClickListener(startTimeClickListener);
+            mEndTime.setOnClickListener(endTimeClickListener);
+//            mAircraft.setOnItemClickListener(aircraftListener);
+
+            mGrossWt.setOnClickListener(selectGrossWtListener);
+            mPayloadWt.setOnClickListener(selectPayloadWtListener);
+            mFuelLoading.setOnClickListener(selectFuelLoadingListener);
+            mFuelIndicator.setOnClickListener(selectFuelIndicatorListener);
+            mGetAirspace.setOnClickListener(getListener);
+            mRequestContract.setOnClickListener(requestListener);
+        }
 
         private void setAircraftSpinnerData() {
             aircraftArray = new ArrayList<>();
@@ -555,21 +708,6 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
             }
         }
 
-        private void setClickListeners() {
-            mFlightPlan.setOnClickListener(selectFlightPlanListener);
-            mDescription.setOnClickListener(selectDescriptionListener);
-            mDate.setOnClickListener(selectDateListener);
-            mStartTime.setOnClickListener(startTimeClickListener);
-            mEndTime.setOnClickListener(endTimeClickListener);
-//            mAircraft.setOnItemClickListener(aircraftListener);
-
-            mGrossWt.setOnClickListener(selectGrossWtListener);
-            mPayloadWt.setOnClickListener(selectPayloadWtListener);
-            mFuelLoading.setOnClickListener(selectFuelLoadingListener);
-            mFuelIndicator.setOnClickListener(selectFuelIndicatorListener);
-            mGetAirspace.setOnClickListener(getListener);
-            mRequestContract.setOnClickListener(requestListener);
-        }
 
         private void setDefaults() {
             Calendar cal = Calendar.getInstance();
@@ -616,12 +754,12 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
 //            mAircraftIdText  = aircraft.getId();
 //            mOrganizationIdText  = aircraft.getOrganization_id();
             status = "DRAFT";
-
-            mAircraftIdText = "";
-            mOrganizationIdText = "";
+            int pos = mAircraft.getSelectedItemPosition();
+            mAircraftIdText = aircraftsMap.get(pos).getId();
+            mOrganizationIdText = aircraftsMap.get(pos).getOrganization_id();
             mDescriptionText = mDescription.getText().toString().trim();
             mFlightTypeText = mFlightType.getSelectedItem().toString().trim();
-            flight_plan_category = "";
+            flight_plan_category = mFlightTypeText;
             route_id = "";
             mAltitudeModeText = mAltitudeMode.getSelectedItem().toString().trim();
             props = new JSONObject();
@@ -698,12 +836,11 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
         public void setData() {
             name = mFlightPlanText;
             aircraft_id = mAircraftIdText;
-            organization_id = "";
             status = "DRAFT";
             organization_id = mOrganizationIdText;
             description = mDescriptionText;
             flight_plan_type = mFlightTypeText;
-            flight_plan_category = "";
+            flight_plan_category = flight_plan_type;
             route_id = "";
             altitude_mode = mAltitudeModeText;
             props = new JSONObject();
@@ -807,8 +944,9 @@ public class CreatePlan extends FragmentActivity implements OnMapReadyCallback {
                         Aircraft aircraft = new Aircraft(response.optJSONObject(i));
                         mAircrafts.add(aircraft);
                     }
-                    attachFragments();
+
                     updateAircraftData.updateData();
+
 
                 }
             };

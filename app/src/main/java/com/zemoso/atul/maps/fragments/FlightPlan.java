@@ -50,7 +50,7 @@ public class FlightPlan extends Fragment {
 
     private String mHostname;
 
-    private FlightPlanDownload flightPlanDownload = new FlightPlanDownload();
+    private FlightPlanDownload flightPlanDownload;
     private List<FlightPlanResponse> flightPlanResponses;
 
     private TextView mCreatePlan;
@@ -68,6 +68,8 @@ public class FlightPlan extends Fragment {
             startActivity(intent);
         }
     };
+
+
     public FlightPlan() {
         // Required empty public constructor
     }
@@ -116,7 +118,7 @@ public class FlightPlan extends Fragment {
 
         getActivity().setTitle(getResources().getString(R.string.nav_flight_plan));
 
-
+        flightPlanDownload = new FlightPlanDownload();
         flightPlanDownload.getFlightPlans();
 
         mCreatePlan.setOnClickListener(mCreateListener);

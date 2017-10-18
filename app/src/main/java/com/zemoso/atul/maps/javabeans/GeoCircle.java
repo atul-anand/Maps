@@ -17,6 +17,7 @@ public class GeoCircle {
     private LatLng coordinates;
     private String radius;
 
+
     public GeoCircle(JSONObject jsonObject) {
         this.type = jsonObject.optString("type");
         JSONArray coords = jsonObject.optJSONArray("coordinates");
@@ -34,7 +35,7 @@ public class GeoCircle {
     }
 
     public GeoCircle() {
-
+        this.coordinates = new LatLng(0, 0);
     }
 
     public String getType() {

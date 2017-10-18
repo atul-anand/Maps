@@ -8,7 +8,14 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="540dp"
-        tools:context="com.zemoso.atul.maps.activities.CreatePlan" />
+        tools:context="com.zemoso.atul.maps.activities.CreatePlan">
+
+        <com.zemoso.atul.maps.utils.CircleTouchView
+            android:id="@+id/map_circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+    </fragment>
 
     <FrameLayout
         android:id="@+id/detail_create_fragment"
